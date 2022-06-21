@@ -1,9 +1,8 @@
 """Support for ZHA sirens."""
 from __future__ import annotations
 
-from collections.abc import Callable
 import functools
-from typing import TYPE_CHECKING, Any, cast
+from typing import Any
 
 from zigpy.zcl.clusters.security import IasWd as WD
 
@@ -39,11 +38,8 @@ from .core.const import (
     Strobe,
 )
 from .core.registries import ZHA_ENTITIES
+from .core.typing import ChannelType, ZhaDeviceType
 from .entity import ZhaEntity
-
-if TYPE_CHECKING:
-    from .core.channels.base import ZigbeeChannel
-    from .core.device import ZHADevice
 
 MULTI_MATCH = functools.partial(ZHA_ENTITIES.multipass_match, Platform.SIREN)
 DEFAULT_DURATION = 5  # seconds
@@ -76,8 +72,8 @@ class ZHASiren(ZhaEntity, SirenEntity):
     def __init__(
         self,
         unique_id: str,
-        zha_device: ZHADevice,
-        channels: list[ZigbeeChannel],
+        zha_device: ZhaDeviceType,
+        channels: list[ChannelType],
         **kwargs,
     ) -> None:
         """Init this siren."""
@@ -97,9 +93,9 @@ class ZHASiren(ZhaEntity, SirenEntity):
             WARNING_DEVICE_MODE_EMERGENCY_PANIC: "Emergency Panic",
         }
         super().__init__(unique_id, zha_device, channels, **kwargs)
-        self._channel: IasWd = cast(IasWd, channels[0])
+        self._channel: IasWd = channels[0]
         self._attr_is_on: bool = False
-        self._off_listener: Callable[[], None] | None = None
+        self._off_listener = None
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn on siren."""

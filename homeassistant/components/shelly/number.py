@@ -42,12 +42,12 @@ NUMBERS: Final = {
         key="device|valvepos",
         icon="mdi:pipe-valve",
         name="Valve Position",
-        native_unit_of_measurement=PERCENTAGE,
+        unit_of_measurement=PERCENTAGE,
         available=lambda block: cast(int, block.valveError) != 1,
         entity_category=EntityCategory.CONFIG,
-        native_min_value=0,
-        native_max_value=100,
-        native_step=1,
+        min_value=0,
+        max_value=100,
+        step=1,
         mode=NumberMode("slider"),
         rest_path="thermostat/0",
         rest_arg="pos",
@@ -62,11 +62,11 @@ def _build_block_description(entry: RegistryEntry) -> BlockNumberDescription:
         key="",
         name="",
         icon=entry.original_icon,
-        native_unit_of_measurement=entry.unit_of_measurement,
+        unit_of_measurement=entry.unit_of_measurement,
         device_class=entry.original_device_class,
-        native_min_value=cast(float, entry.capabilities.get("min")),
-        native_max_value=cast(float, entry.capabilities.get("max")),
-        native_step=cast(float, entry.capabilities.get("step")),
+        min_value=cast(float, entry.capabilities.get("min")),
+        max_value=cast(float, entry.capabilities.get("max")),
+        step=cast(float, entry.capabilities.get("step")),
         mode=cast(NumberMode, entry.capabilities.get("mode")),
     )
 
@@ -97,14 +97,14 @@ class BlockSleepingNumber(ShellySleepingBlockAttributeEntity, NumberEntity):
     entity_description: BlockNumberDescription
 
     @property
-    def native_value(self) -> float:
+    def value(self) -> float:
         """Return value of number."""
         if self.block is not None:
             return cast(float, self.attribute_value)
 
         return cast(float, self.last_state)
 
-    async def async_set_native_value(self, value: float) -> None:
+    async def async_set_value(self, value: float) -> None:
         """Set value."""
         # Example for Shelly Valve: http://192.168.188.187/thermostat/0?pos=13.0
         await self._set_state_full_path(

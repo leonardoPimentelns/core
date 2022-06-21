@@ -91,7 +91,3 @@ class PowerViewShadeBatterySensor(ShadeEntity, SensorEntity):
         """Update with new data from the coordinator."""
         self._shade.raw_data = self.data.get_raw_data(self._shade.id)
         self.async_write_ha_state()
-
-    async def async_update(self) -> None:
-        """Refresh shade battery."""
-        await self._shade.refreshBattery()

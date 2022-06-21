@@ -233,6 +233,10 @@ ZEROCONF = {
         {
             "domain": "overkiz",
             "name": "gateway*"
+        },
+        {
+            "domain": "somfy",
+            "name": "gateway*"
         }
     ],
     "_leap._tcp.local.": [

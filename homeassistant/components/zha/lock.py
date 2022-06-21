@@ -1,6 +1,5 @@
 """Locks on Zigbee Home Automation networks."""
 import functools
-from typing import Any
 
 import voluptuous as vol
 from zigpy.zcl.foundation import Status
@@ -53,7 +52,7 @@ async def async_setup_entry(
 
     platform = entity_platform.async_get_current_platform()
 
-    platform.async_register_entity_service(
+    platform.async_register_entity_service(  # type: ignore
         SERVICE_SET_LOCK_USER_CODE,
         {
             vol.Required("code_slot"): vol.Coerce(int),
@@ -62,7 +61,7 @@ async def async_setup_entry(
         "async_set_lock_user_code",
     )
 
-    platform.async_register_entity_service(
+    platform.async_register_entity_service(  # type: ignore
         SERVICE_ENABLE_LOCK_USER_CODE,
         {
             vol.Required("code_slot"): vol.Coerce(int),
@@ -70,7 +69,7 @@ async def async_setup_entry(
         "async_enable_lock_user_code",
     )
 
-    platform.async_register_entity_service(
+    platform.async_register_entity_service(  # type: ignore
         SERVICE_DISABLE_LOCK_USER_CODE,
         {
             vol.Required("code_slot"): vol.Coerce(int),
@@ -78,7 +77,7 @@ async def async_setup_entry(
         "async_disable_lock_user_code",
     )
 
-    platform.async_register_entity_service(
+    platform.async_register_entity_service(  # type: ignore
         SERVICE_CLEAR_LOCK_USER_CODE,
         {
             vol.Required("code_slot"): vol.Coerce(int),
@@ -120,7 +119,7 @@ class ZhaDoorLock(ZhaEntity, LockEntity):
         """Return state attributes."""
         return self.state_attributes
 
-    async def async_lock(self, **kwargs: Any) -> None:
+    async def async_lock(self, **kwargs):
         """Lock the lock."""
         result = await self._doorlock_channel.lock_door()
         if isinstance(result, Exception) or result[0] is not Status.SUCCESS:
@@ -128,7 +127,7 @@ class ZhaDoorLock(ZhaEntity, LockEntity):
             return
         self.async_write_ha_state()
 
-    async def async_unlock(self, **kwargs: Any) -> None:
+    async def async_unlock(self, **kwargs):
         """Unlock the lock."""
         result = await self._doorlock_channel.unlock_door()
         if isinstance(result, Exception) or result[0] is not Status.SUCCESS:

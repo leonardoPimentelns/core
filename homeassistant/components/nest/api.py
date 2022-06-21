@@ -12,6 +12,7 @@ from google_nest_sdm.auth import AbstractAuth
 from google_nest_sdm.google_nest_subscriber import GoogleNestSubscriber
 
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import CONF_CLIENT_ID, CONF_CLIENT_SECRET
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import aiohttp_client, config_entry_oauth2_flow
 
@@ -19,6 +20,8 @@ from .const import (
     API_URL,
     CONF_PROJECT_ID,
     CONF_SUBSCRIBER_ID,
+    DATA_NEST_CONFIG,
+    DOMAIN,
     OAUTH2_TOKEN,
     SDM_SCOPES,
 )
@@ -108,19 +111,21 @@ async def new_subscriber(
             hass, entry
         )
     )
-    if not isinstance(
-        implementation, config_entry_oauth2_flow.LocalOAuth2Implementation
+    config = hass.data[DOMAIN][DATA_NEST_CONFIG]
+    if not (
+        subscriber_id := entry.data.get(
+            CONF_SUBSCRIBER_ID, config.get(CONF_SUBSCRIBER_ID)
+        )
     ):
-        raise ValueError(f"Unexpected auth implementation {implementation}")
-    if not (subscriber_id := entry.data.get(CONF_SUBSCRIBER_ID)):
-        raise ValueError("Configuration option 'subscriber_id' missing")
+        _LOGGER.error("Configuration option 'subscriber_id' required")
+        return None
     auth = AsyncConfigEntryAuth(
         aiohttp_client.async_get_clientsession(hass),
         config_entry_oauth2_flow.OAuth2Session(hass, entry, implementation),
-        implementation.client_id,
-        implementation.client_secret,
+        config[CONF_CLIENT_ID],
+        config[CONF_CLIENT_SECRET],
     )
-    return GoogleNestSubscriber(auth, entry.data[CONF_PROJECT_ID], subscriber_id)
+    return GoogleNestSubscriber(auth, config[CONF_PROJECT_ID], subscriber_id)
 
 
 def new_subscriber_with_token(

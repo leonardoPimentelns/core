@@ -13,11 +13,11 @@ from homeassistant.components.cover import (
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import DOMAIN
+from .const import BPUP_SUBS, DOMAIN, HUB
 from .entity import BondEntity
-from .models import BondData
 from .utils import BondDevice, BondHub
 
 
@@ -37,15 +37,17 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up Bond cover devices."""
-    data: BondData = hass.data[DOMAIN][entry.entry_id]
-    hub = data.hub
-    bpup_subs = data.bpup_subs
+    data = hass.data[DOMAIN][entry.entry_id]
+    hub: BondHub = data[HUB]
+    bpup_subs: BPUPSubscriptions = data[BPUP_SUBS]
 
-    async_add_entities(
+    covers: list[Entity] = [
         BondCover(hub, device, bpup_subs)
         for device in hub.devices
         if device.type == DeviceType.MOTORIZED_SHADES
-    )
+    ]
+
+    async_add_entities(covers, True)
 
 
 class BondCover(BondEntity, CoverEntity):
@@ -76,8 +78,7 @@ class BondCover(BondEntity, CoverEntity):
                 supported_features |= CoverEntityFeature.STOP_TILT
         self._attr_supported_features = supported_features
 
-    def _apply_state(self) -> None:
-        state = self._device.state
+    def _apply_state(self, state: dict) -> None:
         cover_open = state.get("open")
         self._attr_is_closed = None if cover_open is None else cover_open == 0
         if (bond_position := state.get("position")) is not None:

@@ -36,7 +36,6 @@ from .conftest import (
     MockEntityFixture,
     assert_entity_counts,
     ids_from_device_description,
-    reset_objects,
 )
 
 
@@ -52,7 +51,7 @@ async def camera_fixture(
     # disable pydantic validation so mocking can happen
     Camera.__config__.validate_assignment = False
 
-    camera_obj = mock_camera.copy()
+    camera_obj = mock_camera.copy(deep=True)
     camera_obj._api = mock_entry.api
     camera_obj.channels[0]._api = mock_entry.api
     camera_obj.channels[1]._api = mock_entry.api
@@ -63,7 +62,7 @@ async def camera_fixture(
     camera_obj.is_dark = False
     camera_obj.is_motion_detected = False
 
-    reset_objects(mock_entry.api.bootstrap)
+    mock_entry.api.bootstrap.reset_objects()
     mock_entry.api.bootstrap.nvr.system_info.storage.devices = []
     mock_entry.api.bootstrap.cameras = {
         camera_obj.id: camera_obj,
@@ -88,14 +87,14 @@ async def light_fixture(
     # disable pydantic validation so mocking can happen
     Light.__config__.validate_assignment = False
 
-    light_obj = mock_light.copy()
+    light_obj = mock_light.copy(deep=True)
     light_obj._api = mock_entry.api
     light_obj.name = "Test Light"
     light_obj.is_dark = False
     light_obj.is_pir_motion_detected = False
     light_obj.last_motion = now - timedelta(hours=1)
 
-    reset_objects(mock_entry.api.bootstrap)
+    mock_entry.api.bootstrap.reset_objects()
     mock_entry.api.bootstrap.nvr.system_info.storage.devices = []
     mock_entry.api.bootstrap.lights = {
         light_obj.id: light_obj,
@@ -120,7 +119,7 @@ async def camera_none_fixture(
     # disable pydantic validation so mocking can happen
     Camera.__config__.validate_assignment = False
 
-    camera_obj = mock_camera.copy()
+    camera_obj = mock_camera.copy(deep=True)
     camera_obj._api = mock_entry.api
     camera_obj.channels[0]._api = mock_entry.api
     camera_obj.channels[1]._api = mock_entry.api
@@ -130,7 +129,7 @@ async def camera_none_fixture(
     camera_obj.is_dark = False
     camera_obj.is_motion_detected = False
 
-    reset_objects(mock_entry.api.bootstrap)
+    mock_entry.api.bootstrap.reset_objects()
     mock_entry.api.bootstrap.nvr.system_info.storage.devices = []
     mock_entry.api.bootstrap.cameras = {
         camera_obj.id: camera_obj,
@@ -158,7 +157,7 @@ async def sensor_fixture(
     # disable pydantic validation so mocking can happen
     Sensor.__config__.validate_assignment = False
 
-    sensor_obj = mock_sensor.copy()
+    sensor_obj = mock_sensor.copy(deep=True)
     sensor_obj._api = mock_entry.api
     sensor_obj.name = "Test Sensor"
     sensor_obj.mount_type = MountType.DOOR
@@ -171,7 +170,7 @@ async def sensor_fixture(
     sensor_obj.alarm_triggered_at = now - timedelta(hours=1)
     sensor_obj.tampering_detected_at = None
 
-    reset_objects(mock_entry.api.bootstrap)
+    mock_entry.api.bootstrap.reset_objects()
     mock_entry.api.bootstrap.nvr.system_info.storage.devices = []
     mock_entry.api.bootstrap.sensors = {
         sensor_obj.id: sensor_obj,
@@ -199,7 +198,7 @@ async def sensor_none_fixture(
     # disable pydantic validation so mocking can happen
     Sensor.__config__.validate_assignment = False
 
-    sensor_obj = mock_sensor.copy()
+    sensor_obj = mock_sensor.copy(deep=True)
     sensor_obj._api = mock_entry.api
     sensor_obj.name = "Test Sensor"
     sensor_obj.mount_type = MountType.LEAK
@@ -207,7 +206,7 @@ async def sensor_none_fixture(
     sensor_obj.alarm_settings.is_enabled = False
     sensor_obj.tampering_detected_at = None
 
-    reset_objects(mock_entry.api.bootstrap)
+    mock_entry.api.bootstrap.reset_objects()
     mock_entry.api.bootstrap.nvr.system_info.storage.devices = []
     mock_entry.api.bootstrap.sensors = {
         sensor_obj.id: sensor_obj,
@@ -367,6 +366,7 @@ async def test_binary_sensor_setup_sensor_none(
 
         state = hass.states.get(entity_id)
         assert state
+        print(entity_id)
         assert state.state == expected[index]
         assert state.attributes[ATTR_ATTRIBUTION] == DEFAULT_ATTRIBUTION
 

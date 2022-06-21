@@ -83,7 +83,8 @@ class BrotherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self, discovery_info: zeroconf.ZeroconfServiceInfo
     ) -> FlowResult:
         """Handle zeroconf discovery."""
-        self.host = discovery_info.host
+        # Hostname is format: brother.local.
+        self.host = discovery_info.hostname.rstrip(".")
 
         # Do not probe the device if the host is already configured
         self._async_abort_entries_match({CONF_HOST: self.host})
@@ -101,7 +102,7 @@ class BrotherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         # Check if already configured
         await self.async_set_unique_id(self.brother.serial.lower())
-        self._abort_if_unique_id_configured({CONF_HOST: self.host})
+        self._abort_if_unique_id_configured()
 
         self.context.update(
             {

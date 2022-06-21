@@ -12,7 +12,6 @@ import time
 from typing import TYPE_CHECKING, Any
 
 from zigpy import types
-import zigpy.device
 import zigpy.exceptions
 from zigpy.profiles import PROFILES
 import zigpy.quirks
@@ -28,7 +27,7 @@ from homeassistant.helpers.dispatcher import (
 )
 from homeassistant.helpers.event import async_track_time_interval
 
-from . import channels
+from . import channels, typing as zha_typing
 from .const import (
     ATTR_ARGS,
     ATTR_ATTRIBUTE,
@@ -79,7 +78,6 @@ from .helpers import LogMixin, async_get_zha_config_value
 
 if TYPE_CHECKING:
     from ..api import ClusterBinding
-    from .gateway import ZHAGateway
 
 _LOGGER = logging.getLogger(__name__)
 _UPDATE_ALIVE_INTERVAL = (60, 90)
@@ -101,8 +99,8 @@ class ZHADevice(LogMixin):
     def __init__(
         self,
         hass: HomeAssistant,
-        zigpy_device: zigpy.device.Device,
-        zha_gateway: ZHAGateway,
+        zigpy_device: zha_typing.ZigpyDeviceType,
+        zha_gateway: zha_typing.ZhaGatewayType,
     ) -> None:
         """Initialize the gateway."""
         self.hass = hass
@@ -152,17 +150,17 @@ class ZHADevice(LogMixin):
         self._ha_device_id = device_id
 
     @property
-    def device(self) -> zigpy.device.Device:
+    def device(self) -> zha_typing.ZigpyDeviceType:
         """Return underlying Zigpy device."""
         return self._zigpy_device
 
     @property
-    def channels(self) -> channels.Channels:
+    def channels(self) -> zha_typing.ChannelsType:
         """Return ZHA channels."""
         return self._channels
 
     @channels.setter
-    def channels(self, value: channels.Channels) -> None:
+    def channels(self, value: zha_typing.ChannelsType) -> None:
         """Channels setter."""
         assert isinstance(value, channels.Channels)
         self._channels = value
@@ -333,8 +331,8 @@ class ZHADevice(LogMixin):
     def new(
         cls,
         hass: HomeAssistant,
-        zigpy_dev: zigpy.device.Device,
-        gateway: ZHAGateway,
+        zigpy_dev: zha_typing.ZigpyDeviceType,
+        gateway: zha_typing.ZhaGatewayType,
         restored: bool = False,
     ):
         """Create new device."""

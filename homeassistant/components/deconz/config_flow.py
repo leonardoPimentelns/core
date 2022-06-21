@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import asyncio
-from collections.abc import Mapping
 from pprint import pformat
 from typing import Any, cast
 from urllib.parse import urlparse
@@ -205,7 +204,7 @@ class DeconzFlowHandler(ConfigFlow, domain=DOMAIN):
             },
         )
 
-    async def async_step_reauth(self, config: Mapping[str, Any]) -> FlowResult:
+    async def async_step_reauth(self, config: dict[str, Any]) -> FlowResult:
         """Trigger a reauthentication flow."""
         self.context["title_placeholders"] = {CONF_HOST: config[CONF_HOST]}
 

@@ -4,7 +4,6 @@ from __future__ import annotations
 from enum import Enum
 import functools
 import logging
-from typing import TYPE_CHECKING
 
 from zigpy import types
 from zigpy.zcl.clusters.general import OnOff
@@ -27,12 +26,8 @@ from .core.const import (
     Strobe,
 )
 from .core.registries import ZHA_ENTITIES
+from .core.typing import ChannelType, ZhaDeviceType
 from .entity import ZhaEntity
-
-if TYPE_CHECKING:
-    from .core.channels.base import ZigbeeChannel
-    from .core.device import ZHADevice
-
 
 CONFIG_DIAGNOSTIC_MATCH = functools.partial(
     ZHA_ENTITIES.config_diagnostic_match, Platform.SELECT
@@ -69,14 +64,14 @@ class ZHAEnumSelectEntity(ZhaEntity, SelectEntity):
     def __init__(
         self,
         unique_id: str,
-        zha_device: ZHADevice,
-        channels: list[ZigbeeChannel],
+        zha_device: ZhaDeviceType,
+        channels: list[ChannelType],
         **kwargs,
     ) -> None:
         """Init this select entity."""
         self._attr_name = self._enum.__name__
         self._attr_options = [entry.name.replace("_", " ") for entry in self._enum]
-        self._channel: ZigbeeChannel = channels[0]
+        self._channel: ChannelType = channels[0]
         super().__init__(unique_id, zha_device, channels, **kwargs)
 
     @property
@@ -155,8 +150,8 @@ class ZCLEnumSelectEntity(ZhaEntity, SelectEntity):
     def create_entity(
         cls,
         unique_id: str,
-        zha_device: ZHADevice,
-        channels: list[ZigbeeChannel],
+        zha_device: ZhaDeviceType,
+        channels: list[ChannelType],
         **kwargs,
     ) -> ZhaEntity | None:
         """Entity Factory.
@@ -180,13 +175,13 @@ class ZCLEnumSelectEntity(ZhaEntity, SelectEntity):
     def __init__(
         self,
         unique_id: str,
-        zha_device: ZHADevice,
-        channels: list[ZigbeeChannel],
+        zha_device: ZhaDeviceType,
+        channels: list[ChannelType],
         **kwargs,
     ) -> None:
         """Init this select entity."""
         self._attr_options = [entry.name.replace("_", " ") for entry in self._enum]
-        self._channel: ZigbeeChannel = channels[0]
+        self._channel: ChannelType = channels[0]
         super().__init__(unique_id, zha_device, channels, **kwargs)
 
     @property

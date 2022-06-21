@@ -9,7 +9,6 @@ import voluptuous as vol
 from homeassistant.components.sensor import PLATFORM_SCHEMA, SensorEntity
 from homeassistant.const import ATTR_ATTRIBUTION
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.aiohttp_client import async_get_clientsession
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
@@ -44,24 +43,21 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
 )
 
 
-async def async_setup_platform(
+def setup_platform(
     hass: HomeAssistant,
     config: ConfigType,
-    async_add_entities: AddEntitiesCallback,
+    add_entities: AddEntitiesCallback,
     discovery_info: DiscoveryInfoType | None = None,
 ) -> None:
     """Set up the Tube sensor."""
 
-    session = async_get_clientsession(hass)
-
-    data = TubeData(session)
-    await data.update()
-
+    data = TubeData()
+    data.update()
     sensors = []
     for line in config[CONF_LINE]:
         sensors.append(LondonTubeSensor(line, data))
 
-    async_add_entities(sensors, True)
+    add_entities(sensors, True)
 
 
 class LondonTubeSensor(SensorEntity):
@@ -96,8 +92,8 @@ class LondonTubeSensor(SensorEntity):
         self.attrs["Description"] = self._description
         return self.attrs
 
-    async def async_update(self):
+    def update(self):
         """Update the sensor."""
-        await self._data.update()
+        self._data.update()
         self._state = self._data.data[self.name]["State"]
         self._description = self._data.data[self.name]["Description"]

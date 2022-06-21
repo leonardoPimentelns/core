@@ -87,7 +87,9 @@ class RecorderPool(SingletonThreadPool, NullPool):  # type: ignore[misc]
             exclude_integrations={"recorder"},
             error_if_core=False,
         )
-        return super(NullPool, self)._create_connection()
+        return super(  # pylint: disable=bad-super-call
+            NullPool, self
+        )._create_connection()
 
 
 class MutexPool(StaticPool):  # type: ignore[misc]

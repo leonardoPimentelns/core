@@ -4,7 +4,6 @@ from __future__ import annotations
 import asyncio
 import functools
 import logging
-from typing import TYPE_CHECKING
 
 from zigpy.zcl.foundation import Status
 
@@ -38,11 +37,8 @@ from .core.const import (
     SIGNAL_SET_LEVEL,
 )
 from .core.registries import ZHA_ENTITIES
+from .core.typing import ChannelType, ZhaDeviceType
 from .entity import ZhaEntity
-
-if TYPE_CHECKING:
-    from .core.channels.base import ZigbeeChannel
-    from .core.device import ZHADevice
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -195,8 +191,8 @@ class Shade(ZhaEntity, CoverEntity):
     def __init__(
         self,
         unique_id: str,
-        zha_device: ZHADevice,
-        channels: list[ZigbeeChannel],
+        zha_device: ZhaDeviceType,
+        channels: list[ChannelType],
         **kwargs,
     ) -> None:
         """Initialize the ZHA light."""

@@ -1,6 +1,5 @@
 """Test zha sensor."""
 import math
-from unittest.mock import patch
 
 import pytest
 import zigpy.profiles.zha
@@ -49,19 +48,6 @@ from .common import (
 from .conftest import SIG_EP_INPUT, SIG_EP_OUTPUT, SIG_EP_PROFILE, SIG_EP_TYPE
 
 ENTITY_ID_PREFIX = "sensor.fakemanufacturer_fakemodel_e769900a_{}"
-
-
-@pytest.fixture(autouse=True)
-def sensor_platform_only():
-    """Only setup the sensor and required base platforms to speed up tests."""
-    with patch(
-        "homeassistant.components.zha.PLATFORMS",
-        (
-            Platform.DEVICE_TRACKER,
-            Platform.SENSOR,
-        ),
-    ):
-        yield
 
 
 @pytest.fixture

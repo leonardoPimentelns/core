@@ -8,7 +8,7 @@ import httpx
 import pytest
 import respx
 
-from homeassistant import config_entries, data_entry_flow
+from homeassistant import config_entries, data_entry_flow, setup
 from homeassistant.components.camera import async_get_image
 from homeassistant.components.generic.const import (
     CONF_CONTENT_TYPE,
@@ -60,9 +60,7 @@ TESTDATA_YAML = {
 async def test_form(hass, fakeimg_png, user_flow, mock_create_stream):
     """Test the form with a normal set of settings."""
 
-    with mock_create_stream as mock_setup, patch(
-        "homeassistant.components.generic.async_setup_entry", return_value=True
-    ) as mock_setup_entry:
+    with mock_create_stream as mock_setup:
         result2 = await hass.config_entries.flow.async_configure(
             user_flow["flow_id"],
             TESTDATA,
@@ -83,12 +81,12 @@ async def test_form(hass, fakeimg_png, user_flow, mock_create_stream):
 
     await hass.async_block_till_done()
     assert len(mock_setup.mock_calls) == 1
-    assert len(mock_setup_entry.mock_calls) == 1
 
 
 @respx.mock
 async def test_form_only_stillimage(hass, fakeimg_png, user_flow):
     """Test we complete ok if the user wants still images only."""
+    await setup.async_setup_component(hass, "persistent_notification", {})
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": config_entries.SOURCE_USER}
     )
@@ -97,12 +95,10 @@ async def test_form_only_stillimage(hass, fakeimg_png, user_flow):
 
     data = TESTDATA.copy()
     data.pop(CONF_STREAM_SOURCE)
-    with patch("homeassistant.components.generic.async_setup_entry", return_value=True):
-        result2 = await hass.config_entries.flow.async_configure(
-            user_flow["flow_id"],
-            data,
-        )
-        await hass.async_block_till_done()
+    result2 = await hass.config_entries.flow.async_configure(
+        user_flow["flow_id"],
+        data,
+    )
     assert result2["type"] == data_entry_flow.RESULT_TYPE_CREATE_ENTRY
     assert result2["title"] == "127_0_0_1"
     assert result2["options"] == {
@@ -116,6 +112,7 @@ async def test_form_only_stillimage(hass, fakeimg_png, user_flow):
         CONF_VERIFY_SSL: False,
     }
 
+    await hass.async_block_till_done()
     assert respx.calls.call_count == 1
 
 
@@ -124,12 +121,10 @@ async def test_form_only_stillimage_gif(hass, fakeimg_gif, user_flow):
     """Test we complete ok if the user wants a gif."""
     data = TESTDATA.copy()
     data.pop(CONF_STREAM_SOURCE)
-    with patch("homeassistant.components.generic.async_setup_entry", return_value=True):
-        result2 = await hass.config_entries.flow.async_configure(
-            user_flow["flow_id"],
-            data,
-        )
-        await hass.async_block_till_done()
+    result2 = await hass.config_entries.flow.async_configure(
+        user_flow["flow_id"],
+        data,
+    )
     assert result2["type"] == data_entry_flow.RESULT_TYPE_CREATE_ENTRY
     assert result2["options"][CONF_CONTENT_TYPE] == "image/gif"
 
@@ -141,12 +136,10 @@ async def test_form_only_svg_whitespace(hass, fakeimgbytes_svg, user_flow):
     respx.get("http://127.0.0.1/testurl/1").respond(stream=fakeimgbytes_wspace_svg)
     data = TESTDATA.copy()
     data.pop(CONF_STREAM_SOURCE)
-    with patch("homeassistant.components.generic.async_setup_entry", return_value=True):
-        result2 = await hass.config_entries.flow.async_configure(
-            user_flow["flow_id"],
-            data,
-        )
-        await hass.async_block_till_done()
+    result2 = await hass.config_entries.flow.async_configure(
+        user_flow["flow_id"],
+        data,
+    )
     assert result2["type"] == data_entry_flow.RESULT_TYPE_CREATE_ENTRY
 
 
@@ -168,12 +161,10 @@ async def test_form_only_still_sample(hass, user_flow, image_file):
         respx.get("http://127.0.0.1/testurl/1").respond(stream=image.read())
     data = TESTDATA.copy()
     data.pop(CONF_STREAM_SOURCE)
-    with patch("homeassistant.components.generic.async_setup_entry", return_value=True):
-        result2 = await hass.config_entries.flow.async_configure(
-            user_flow["flow_id"],
-            data,
-        )
-        await hass.async_block_till_done()
+    result2 = await hass.config_entries.flow.async_configure(
+        user_flow["flow_id"],
+        data,
+    )
     assert result2["type"] == data_entry_flow.RESULT_TYPE_CREATE_ENTRY
 
 
@@ -212,12 +203,10 @@ async def test_still_template(
     data = TESTDATA.copy()
     data.pop(CONF_STREAM_SOURCE)
     data[CONF_STILL_IMAGE_URL] = template
-    with patch("homeassistant.components.generic.async_setup_entry", return_value=True):
-        result2 = await hass.config_entries.flow.async_configure(
-            user_flow["flow_id"],
-            data,
-        )
-        await hass.async_block_till_done()
+    result2 = await hass.config_entries.flow.async_configure(
+        user_flow["flow_id"],
+        data,
+    )
     assert result2["type"] == expected_result
 
 
@@ -227,9 +216,7 @@ async def test_form_rtsp_mode(hass, fakeimg_png, user_flow, mock_create_stream):
     data = TESTDATA.copy()
     data[CONF_RTSP_TRANSPORT] = "tcp"
     data[CONF_STREAM_SOURCE] = "rtsp://127.0.0.1/testurl/2"
-    with mock_create_stream as mock_setup, patch(
-        "homeassistant.components.generic.async_setup_entry", return_value=True
-    ):
+    with mock_create_stream as mock_setup:
         result2 = await hass.config_entries.flow.async_configure(
             user_flow["flow_id"], data
         )
@@ -255,6 +242,7 @@ async def test_form_rtsp_mode(hass, fakeimg_png, user_flow, mock_create_stream):
 
 async def test_form_only_stream(hass, fakeimgbytes_jpg, mock_create_stream):
     """Test we complete ok if the user wants stream only."""
+    await setup.async_setup_component(hass, "persistent_notification", {})
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": config_entries.SOURCE_USER}
     )
@@ -266,7 +254,6 @@ async def test_form_only_stream(hass, fakeimgbytes_jpg, mock_create_stream):
             result["flow_id"],
             data,
         )
-        await hass.async_block_till_done()
 
     assert result3["type"] == data_entry_flow.RESULT_TYPE_CREATE_ENTRY
     assert result3["title"] == "127_0_0_1"
@@ -467,6 +454,7 @@ async def test_options_template_error(hass, fakeimgbytes_png, mock_create_stream
     """Test the options flow with a template error."""
     respx.get("http://127.0.0.1/testurl/1").respond(stream=fakeimgbytes_png)
     respx.get("http://127.0.0.1/testurl/2").respond(stream=fakeimgbytes_png)
+    await setup.async_setup_component(hass, "persistent_notification", {})
 
     mock_entry = MockConfigEntry(
         title="Test Camera",
@@ -661,9 +649,7 @@ async def test_use_wallclock_as_timestamps_option(
     )
     assert result["type"] == data_entry_flow.RESULT_TYPE_FORM
     assert result["step_id"] == "init"
-    with patch(
-        "homeassistant.components.generic.async_setup_entry", return_value=True
-    ), mock_create_stream:
+    with mock_create_stream:
         result2 = await hass.config_entries.options.async_configure(
             result["flow_id"],
             user_input={CONF_USE_WALLCLOCK_AS_TIMESTAMPS: True, **TESTDATA},

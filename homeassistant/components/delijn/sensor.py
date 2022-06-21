@@ -1,7 +1,6 @@
 """Support for De Lijn (Flemish public transport) information."""
 from __future__ import annotations
 
-from datetime import datetime
 import logging
 
 from pydelijn.api import Passages
@@ -112,9 +111,7 @@ class DeLijnPublicTransportSensor(SensorEntity):
             first = self.line.passages[0]
             if (first_passage := first["due_at_realtime"]) is None:
                 first_passage = first["due_at_schedule"]
-            self._attr_native_value = datetime.strptime(
-                first_passage, "%Y-%m-%dT%H:%M:%S%z"
-            )
+            self._attr_native_value = first_passage
 
             for key in AUTO_ATTRIBUTES:
                 self._attr_extra_state_attributes[key] = first[key]

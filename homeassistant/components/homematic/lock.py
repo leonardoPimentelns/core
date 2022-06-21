@@ -1,8 +1,6 @@
 """Support for Homematic locks."""
 from __future__ import annotations
 
-from typing import Any
-
 from homeassistant.components.lock import LockEntity, LockEntityFeature
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -35,19 +33,19 @@ class HMLock(HMDevice, LockEntity):
     _attr_supported_features = LockEntityFeature.OPEN
 
     @property
-    def is_locked(self) -> bool:
+    def is_locked(self):
         """Return true if the lock is locked."""
         return not bool(self._hm_get_state())
 
-    def lock(self, **kwargs: Any) -> None:
+    def lock(self, **kwargs):
         """Lock the lock."""
         self._hmdevice.lock()
 
-    def unlock(self, **kwargs: Any) -> None:
+    def unlock(self, **kwargs):
         """Unlock the lock."""
         self._hmdevice.unlock()
 
-    def open(self, **kwargs: Any) -> None:
+    def open(self, **kwargs):
         """Open the door latch."""
         self._hmdevice.open()
 

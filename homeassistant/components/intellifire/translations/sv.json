@@ -5,13 +5,6 @@
         },
         "error": {
             "cannot_connect": "Det gick inte att ansluta."
-        },
-        "step": {
-            "api_config": {
-                "data": {
-                    "username": "E-postadress"
-                }
-            }
         }
     }
 }

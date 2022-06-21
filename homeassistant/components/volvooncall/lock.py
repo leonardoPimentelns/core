@@ -1,10 +1,6 @@
 """Support for Volvo On Call locks."""
 from __future__ import annotations
 
-from typing import Any
-
-from volvooncall.dashboard import Lock
-
 from homeassistant.components.lock import LockEntity
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -29,17 +25,15 @@ async def async_setup_platform(
 class VolvoLock(VolvoEntity, LockEntity):
     """Represents a car lock."""
 
-    instrument: Lock
-
     @property
-    def is_locked(self) -> bool | None:
+    def is_locked(self):
         """Return true if lock is locked."""
         return self.instrument.is_locked
 
-    async def async_lock(self, **kwargs: Any) -> None:
+    async def async_lock(self, **kwargs):
         """Lock the car."""
         await self.instrument.lock()
 
-    async def async_unlock(self, **kwargs: Any) -> None:
+    async def async_unlock(self, **kwargs):
         """Unlock the car."""
         await self.instrument.unlock()

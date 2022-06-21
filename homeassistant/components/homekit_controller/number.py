@@ -104,26 +104,26 @@ class HomeKitNumber(CharacteristicEntity, NumberEntity):
         return [self._char.type]
 
     @property
-    def native_min_value(self) -> float:
+    def min_value(self) -> float:
         """Return the minimum value."""
         return self._char.minValue or DEFAULT_MIN_VALUE
 
     @property
-    def native_max_value(self) -> float:
+    def max_value(self) -> float:
         """Return the maximum value."""
         return self._char.maxValue or DEFAULT_MAX_VALUE
 
     @property
-    def native_step(self) -> float:
+    def step(self) -> float:
         """Return the increment/decrement step."""
         return self._char.minStep or DEFAULT_STEP
 
     @property
-    def native_value(self) -> float:
+    def value(self) -> float:
         """Return the current characteristic value."""
         return self._char.value
 
-    async def async_set_native_value(self, value: float) -> None:
+    async def async_set_value(self, value: float) -> None:
         """Set the characteristic to this value."""
         await self.async_put_characteristics(
             {
@@ -148,26 +148,26 @@ class HomeKitEcobeeFanModeNumber(CharacteristicEntity, NumberEntity):
         return f"{prefix} Fan Mode"
 
     @property
-    def native_min_value(self) -> float:
+    def min_value(self) -> float:
         """Return the minimum value."""
         return self._char.minValue or DEFAULT_MIN_VALUE
 
     @property
-    def native_max_value(self) -> float:
+    def max_value(self) -> float:
         """Return the maximum value."""
         return self._char.maxValue or DEFAULT_MAX_VALUE
 
     @property
-    def native_step(self) -> float:
+    def step(self) -> float:
         """Return the increment/decrement step."""
         return self._char.minStep or DEFAULT_STEP
 
     @property
-    def native_value(self) -> float:
+    def value(self) -> float:
         """Return the current characteristic value."""
         return self._char.value
 
-    async def async_set_native_value(self, value: float) -> None:
+    async def async_set_value(self, value: float) -> None:
         """Set the characteristic to this value."""
 
         # Sending the fan mode request sometimes ends up getting ignored by ecobee

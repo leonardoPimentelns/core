@@ -241,7 +241,7 @@ async def async_setup_entry(
     """Set up MQTT cover through configuration.yaml and dynamically through MQTT discovery."""
     # load and initialize platform config from configuration.yaml
     config_entry.async_on_unload(
-        await async_setup_platform_discovery(hass, cover.DOMAIN)
+        await async_setup_platform_discovery(hass, cover.DOMAIN, PLATFORM_SCHEMA_MODERN)
     )
     # setup for discovery
     setup = functools.partial(

@@ -1,6 +1,4 @@
 """Binary sensors on Zigbee Home Automation networks."""
-from __future__ import annotations
-
 import functools
 
 from homeassistant.components.binary_sensor import (
@@ -62,7 +60,7 @@ async def async_setup_entry(
 class BinarySensor(ZhaEntity, BinarySensorEntity):
     """ZHA BinarySensor."""
 
-    SENSOR_ATTR: str | None = None
+    SENSOR_ATTR = None
 
     def __init__(self, unique_id, zha_device, channels, **kwargs):
         """Initialize the ZHA binary sensor."""
@@ -163,7 +161,7 @@ class IASZone(BinarySensor):
     SENSOR_ATTR = "zone_status"
 
     @property
-    def device_class(self) -> BinarySensorDeviceClass | None:
+    def device_class(self) -> str:
         """Return device class from component DEVICE_CLASSES."""
         return CLASS_MAPPING.get(self._channel.cluster.get("zone_type"))
 

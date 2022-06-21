@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import functools
 import numbers
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from homeassistant.components.climate.const import HVACAction
 from homeassistant.components.sensor import (
@@ -63,11 +63,8 @@ from .core.const import (
     SIGNAL_ATTR_UPDATED,
 )
 from .core.registries import SMARTTHINGS_HUMIDITY_CLUSTER, ZHA_ENTITIES
+from .core.typing import ChannelType, ZhaDeviceType
 from .entity import ZhaEntity
-
-if TYPE_CHECKING:
-    from .core.channels.base import ZigbeeChannel
-    from .core.device import ZHADevice
 
 PARALLEL_UPDATES = 5
 
@@ -124,20 +121,20 @@ class Sensor(ZhaEntity, SensorEntity):
     def __init__(
         self,
         unique_id: str,
-        zha_device: ZHADevice,
-        channels: list[ZigbeeChannel],
+        zha_device: ZhaDeviceType,
+        channels: list[ChannelType],
         **kwargs,
     ) -> None:
         """Init this sensor."""
         super().__init__(unique_id, zha_device, channels, **kwargs)
-        self._channel: ZigbeeChannel = channels[0]
+        self._channel: ChannelType = channels[0]
 
     @classmethod
     def create_entity(
         cls,
         unique_id: str,
-        zha_device: ZHADevice,
-        channels: list[ZigbeeChannel],
+        zha_device: ZhaDeviceType,
+        channels: list[ChannelType],
         **kwargs,
     ) -> ZhaEntity | None:
         """Entity Factory.
@@ -216,8 +213,8 @@ class Battery(Sensor):
     def create_entity(
         cls,
         unique_id: str,
-        zha_device: ZHADevice,
-        channels: list[ZigbeeChannel],
+        zha_device: ZhaDeviceType,
+        channels: list[ChannelType],
         **kwargs,
     ) -> ZhaEntity | None:
         """Entity Factory.
@@ -640,8 +637,8 @@ class ThermostatHVACAction(Sensor, id_suffix="hvac_action"):
     def create_entity(
         cls,
         unique_id: str,
-        zha_device: ZHADevice,
-        channels: list[ZigbeeChannel],
+        zha_device: ZhaDeviceType,
+        channels: list[ChannelType],
         **kwargs,
     ) -> ZhaEntity | None:
         """Entity Factory.
@@ -765,8 +762,8 @@ class RSSISensor(Sensor, id_suffix="rssi"):
     def create_entity(
         cls,
         unique_id: str,
-        zha_device: ZHADevice,
-        channels: list[ZigbeeChannel],
+        zha_device: ZhaDeviceType,
+        channels: list[ChannelType],
         **kwargs,
     ) -> ZhaEntity | None:
         """Entity Factory.

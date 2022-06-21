@@ -2,13 +2,6 @@
     "config": {
         "abort": {
             "cannot_connect": "Det gick inte att ansluta."
-        },
-        "step": {
-            "user": {
-                "data": {
-                    "username": "Anv\u00e4ndarnamn"
-                }
-            }
         }
     }
 }

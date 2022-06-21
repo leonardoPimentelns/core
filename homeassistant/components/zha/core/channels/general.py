@@ -3,18 +3,17 @@ from __future__ import annotations
 
 import asyncio
 from collections.abc import Coroutine
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 import zigpy.exceptions
 import zigpy.types as t
-import zigpy.zcl
 from zigpy.zcl.clusters import general
 from zigpy.zcl.foundation import Status
 
 from homeassistant.core import callback
 from homeassistant.helpers.event import async_call_later
 
-from .. import registries
+from .. import registries, typing as zha_typing
 from ..const import (
     REPORT_CONFIG_ASAP,
     REPORT_CONFIG_BATTERY_SAVE,
@@ -27,10 +26,7 @@ from ..const import (
     SIGNAL_SET_LEVEL,
     SIGNAL_UPDATE_DEVICE,
 )
-from .base import AttrReportConfig, ClientChannel, ZigbeeChannel, parse_and_log_command
-
-if TYPE_CHECKING:
-    from . import ChannelPool
+from .base import ClientChannel, ZigbeeChannel, parse_and_log_command
 
 
 @registries.ZIGBEE_CHANNEL_REGISTRY.register(general.Alarms.cluster_id)
@@ -42,9 +38,7 @@ class Alarms(ZigbeeChannel):
 class AnalogInput(ZigbeeChannel):
     """Analog Input channel."""
 
-    REPORT_CONFIG = (
-        AttrReportConfig(attr="present_value", config=REPORT_CONFIG_DEFAULT),
-    )
+    REPORT_CONFIG = [{"attr": "present_value", "config": REPORT_CONFIG_DEFAULT}]
 
 
 @registries.BINDABLE_CLUSTERS.register(general.AnalogOutput.cluster_id)
@@ -52,9 +46,7 @@ class AnalogInput(ZigbeeChannel):
 class AnalogOutput(ZigbeeChannel):
     """Analog Output channel."""
 
-    REPORT_CONFIG = (
-        AttrReportConfig(attr="present_value", config=REPORT_CONFIG_DEFAULT),
-    )
+    REPORT_CONFIG = ({"attr": "present_value", "config": REPORT_CONFIG_DEFAULT},)
     ZCL_INIT_ATTRS = {
         "min_present_value": True,
         "max_present_value": True,
@@ -123,9 +115,7 @@ class AnalogOutput(ZigbeeChannel):
 class AnalogValue(ZigbeeChannel):
     """Analog Value channel."""
 
-    REPORT_CONFIG = (
-        AttrReportConfig(attr="present_value", config=REPORT_CONFIG_DEFAULT),
-    )
+    REPORT_CONFIG = [{"attr": "present_value", "config": REPORT_CONFIG_DEFAULT}]
 
 
 @registries.ZIGBEE_CHANNEL_REGISTRY.register(general.ApplianceControl.cluster_id)
@@ -157,27 +147,21 @@ class BasicChannel(ZigbeeChannel):
 class BinaryInput(ZigbeeChannel):
     """Binary Input channel."""
 
-    REPORT_CONFIG = (
-        AttrReportConfig(attr="present_value", config=REPORT_CONFIG_DEFAULT),
-    )
+    REPORT_CONFIG = [{"attr": "present_value", "config": REPORT_CONFIG_DEFAULT}]
 
 
 @registries.ZIGBEE_CHANNEL_REGISTRY.register(general.BinaryOutput.cluster_id)
 class BinaryOutput(ZigbeeChannel):
     """Binary Output channel."""
 
-    REPORT_CONFIG = (
-        AttrReportConfig(attr="present_value", config=REPORT_CONFIG_DEFAULT),
-    )
+    REPORT_CONFIG = [{"attr": "present_value", "config": REPORT_CONFIG_DEFAULT}]
 
 
 @registries.ZIGBEE_CHANNEL_REGISTRY.register(general.BinaryValue.cluster_id)
 class BinaryValue(ZigbeeChannel):
     """Binary Value channel."""
 
-    REPORT_CONFIG = (
-        AttrReportConfig(attr="present_value", config=REPORT_CONFIG_DEFAULT),
-    )
+    REPORT_CONFIG = [{"attr": "present_value", "config": REPORT_CONFIG_DEFAULT}]
 
 
 @registries.ZIGBEE_CHANNEL_REGISTRY.register(general.Commissioning.cluster_id)
@@ -189,12 +173,12 @@ class Commissioning(ZigbeeChannel):
 class DeviceTemperature(ZigbeeChannel):
     """Device Temperature channel."""
 
-    REPORT_CONFIG = (
+    REPORT_CONFIG = [
         {
             "attr": "current_temperature",
             "config": (REPORT_CONFIG_MIN_INT, REPORT_CONFIG_MAX_INT, 50),
-        },
-    )
+        }
+    ]
 
 
 @registries.ZIGBEE_CHANNEL_REGISTRY.register(general.GreenPowerProxy.cluster_id)
@@ -237,7 +221,7 @@ class LevelControlChannel(ZigbeeChannel):
     """Channel for the LevelControl Zigbee cluster."""
 
     CURRENT_LEVEL = 0
-    REPORT_CONFIG = (AttrReportConfig(attr="current_level", config=REPORT_CONFIG_ASAP),)
+    REPORT_CONFIG = ({"attr": "current_level", "config": REPORT_CONFIG_ASAP},)
     ZCL_INIT_ATTRS = {
         "on_off_transition_time": True,
         "on_level": True,
@@ -287,27 +271,21 @@ class LevelControlChannel(ZigbeeChannel):
 class MultistateInput(ZigbeeChannel):
     """Multistate Input channel."""
 
-    REPORT_CONFIG = (
-        AttrReportConfig(attr="present_value", config=REPORT_CONFIG_DEFAULT),
-    )
+    REPORT_CONFIG = [{"attr": "present_value", "config": REPORT_CONFIG_DEFAULT}]
 
 
 @registries.ZIGBEE_CHANNEL_REGISTRY.register(general.MultistateOutput.cluster_id)
 class MultistateOutput(ZigbeeChannel):
     """Multistate Output channel."""
 
-    REPORT_CONFIG = (
-        AttrReportConfig(attr="present_value", config=REPORT_CONFIG_DEFAULT),
-    )
+    REPORT_CONFIG = [{"attr": "present_value", "config": REPORT_CONFIG_DEFAULT}]
 
 
 @registries.ZIGBEE_CHANNEL_REGISTRY.register(general.MultistateValue.cluster_id)
 class MultistateValue(ZigbeeChannel):
     """Multistate Value channel."""
 
-    REPORT_CONFIG = (
-        AttrReportConfig(attr="present_value", config=REPORT_CONFIG_DEFAULT),
-    )
+    REPORT_CONFIG = [{"attr": "present_value", "config": REPORT_CONFIG_DEFAULT}]
 
 
 @registries.CLIENT_CHANNELS_REGISTRY.register(general.OnOff.cluster_id)
@@ -321,12 +299,14 @@ class OnOffChannel(ZigbeeChannel):
     """Channel for the OnOff Zigbee cluster."""
 
     ON_OFF = 0
-    REPORT_CONFIG = (AttrReportConfig(attr="on_off", config=REPORT_CONFIG_IMMEDIATE),)
+    REPORT_CONFIG = ({"attr": "on_off", "config": REPORT_CONFIG_IMMEDIATE},)
     ZCL_INIT_ATTRS = {
         "start_up_on_off": True,
     }
 
-    def __init__(self, cluster: zigpy.zcl.Cluster, ch_pool: ChannelPool) -> None:
+    def __init__(
+        self, cluster: zha_typing.ZigpyClusterType, ch_pool: zha_typing.ChannelPoolType
+    ) -> None:
         """Initialize OnOffChannel."""
         super().__init__(cluster, ch_pool)
         self._off_listener = None
@@ -490,10 +470,8 @@ class PowerConfigurationChannel(ZigbeeChannel):
     """Channel for the zigbee power configuration cluster."""
 
     REPORT_CONFIG = (
-        AttrReportConfig(attr="battery_voltage", config=REPORT_CONFIG_BATTERY_SAVE),
-        AttrReportConfig(
-            attr="battery_percentage_remaining", config=REPORT_CONFIG_BATTERY_SAVE
-        ),
+        {"attr": "battery_voltage", "config": REPORT_CONFIG_BATTERY_SAVE},
+        {"attr": "battery_percentage_remaining", "config": REPORT_CONFIG_BATTERY_SAVE},
     )
 
     def async_initialize_channel_specific(self, from_cache: bool) -> Coroutine:

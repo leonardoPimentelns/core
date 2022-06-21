@@ -64,8 +64,6 @@ class BondEntity(Entity):
             self._attr_name = f"{device.name} {sub_device_name}"
         else:
             self._attr_name = device.name
-        self._attr_assumed_state = self._hub.is_bridge and not self._device.trust_state
-        self._apply_state()
 
     @property
     def device_info(self) -> DeviceInfo:
@@ -139,9 +137,10 @@ class BondEntity(Entity):
             self._attr_available = False
         else:
             self._async_state_callback(state)
+        self._attr_assumed_state = self._hub.is_bridge and not self._device.trust_state
 
     @abstractmethod
-    def _apply_state(self) -> None:
+    def _apply_state(self, state: dict) -> None:
         raise NotImplementedError
 
     @callback
@@ -154,8 +153,7 @@ class BondEntity(Entity):
         _LOGGER.debug(
             "Device state for %s (%s) is:\n%s", self.name, self.entity_id, state
         )
-        self._device.state = state
-        self._apply_state()
+        self._apply_state(state)
 
     @callback
     def _async_bpup_callback(self, json_msg: dict) -> None:

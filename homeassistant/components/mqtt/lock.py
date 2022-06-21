@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import functools
-from typing import Any
 
 import voluptuous as vol
 
@@ -104,7 +103,7 @@ async def async_setup_entry(
     """Set up MQTT lock through configuration.yaml and dynamically through MQTT discovery."""
     # load and initialize platform config from configuration.yaml
     config_entry.async_on_unload(
-        await async_setup_platform_discovery(hass, lock.DOMAIN)
+        await async_setup_platform_discovery(hass, lock.DOMAIN, PLATFORM_SCHEMA_MODERN)
     )
     # setup for discovery
     setup = functools.partial(
@@ -184,7 +183,7 @@ class MqttLock(MqttEntity, LockEntity):
         await subscription.async_subscribe_topics(self.hass, self._sub_state)
 
     @property
-    def is_locked(self) -> bool:
+    def is_locked(self):
         """Return true if lock is locked."""
         return self._state
 
@@ -198,7 +197,7 @@ class MqttLock(MqttEntity, LockEntity):
         """Flag supported features."""
         return LockEntityFeature.OPEN if CONF_PAYLOAD_OPEN in self._config else 0
 
-    async def async_lock(self, **kwargs: Any) -> None:
+    async def async_lock(self, **kwargs):
         """Lock the device.
 
         This method is a coroutine.
@@ -215,7 +214,7 @@ class MqttLock(MqttEntity, LockEntity):
             self._state = True
             self.async_write_ha_state()
 
-    async def async_unlock(self, **kwargs: Any) -> None:
+    async def async_unlock(self, **kwargs):
         """Unlock the device.
 
         This method is a coroutine.
@@ -232,7 +231,7 @@ class MqttLock(MqttEntity, LockEntity):
             self._state = False
             self.async_write_ha_state()
 
-    async def async_open(self, **kwargs: Any) -> None:
+    async def async_open(self, **kwargs):
         """Open the door latch.
 
         This method is a coroutine.

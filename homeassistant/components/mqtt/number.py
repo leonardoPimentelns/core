@@ -11,12 +11,10 @@ from homeassistant.components.number import (
     DEFAULT_MAX_VALUE,
     DEFAULT_MIN_VALUE,
     DEFAULT_STEP,
-    DEVICE_CLASSES_SCHEMA,
-    RestoreNumber,
+    NumberEntity,
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
-    CONF_DEVICE_CLASS,
     CONF_NAME,
     CONF_OPTIMISTIC,
     CONF_UNIT_OF_MEASUREMENT,
@@ -25,6 +23,7 @@ from homeassistant.const import (
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 
 from . import subscription
@@ -79,7 +78,6 @@ def validate_config(config):
 _PLATFORM_SCHEMA_BASE = MQTT_RW_SCHEMA.extend(
     {
         vol.Optional(CONF_COMMAND_TEMPLATE): cv.template,
-        vol.Optional(CONF_DEVICE_CLASS): DEVICE_CLASSES_SCHEMA,
         vol.Optional(CONF_MAX, default=DEFAULT_MAX_VALUE): vol.Coerce(float),
         vol.Optional(CONF_MIN, default=DEFAULT_MIN_VALUE): vol.Coerce(float),
         vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
@@ -136,7 +134,9 @@ async def async_setup_entry(
     """Set up MQTT number through configuration.yaml and dynamically through MQTT discovery."""
     # load and initialize platform config from configuration.yaml
     config_entry.async_on_unload(
-        await async_setup_platform_discovery(hass, number.DOMAIN)
+        await async_setup_platform_discovery(
+            hass, number.DOMAIN, PLATFORM_SCHEMA_MODERN
+        )
     )
     # setup for discovery
     setup = functools.partial(
@@ -152,7 +152,7 @@ async def _async_setup_entity(
     async_add_entities([MqttNumber(hass, config, config_entry, discovery_data)])
 
 
-class MqttNumber(MqttEntity, RestoreNumber):
+class MqttNumber(MqttEntity, NumberEntity, RestoreEntity):
     """representation of an MQTT number."""
 
     _entity_id_format = number.ENTITY_ID_FORMAT
@@ -166,7 +166,7 @@ class MqttNumber(MqttEntity, RestoreNumber):
 
         self._current_number = None
 
-        RestoreNumber.__init__(self)
+        NumberEntity.__init__(self)
         MqttEntity.__init__(self, hass, config, config_entry, discovery_data)
 
     @staticmethod
@@ -243,37 +243,35 @@ class MqttNumber(MqttEntity, RestoreNumber):
         """(Re)Subscribe to topics."""
         await subscription.async_subscribe_topics(self.hass, self._sub_state)
 
-        if self._optimistic and (
-            last_number_data := await self.async_get_last_number_data()
-        ):
-            self._current_number = last_number_data.native_value
+        if self._optimistic and (last_state := await self.async_get_last_state()):
+            self._current_number = last_state.state
 
     @property
-    def native_min_value(self) -> float:
+    def min_value(self) -> float:
         """Return the minimum value."""
         return self._config[CONF_MIN]
 
     @property
-    def native_max_value(self) -> float:
+    def max_value(self) -> float:
         """Return the maximum value."""
         return self._config[CONF_MAX]
 
     @property
-    def native_step(self) -> float:
+    def step(self) -> float:
         """Return the increment/decrement step."""
         return self._config[CONF_STEP]
 
     @property
-    def native_unit_of_measurement(self) -> str | None:
+    def unit_of_measurement(self) -> str | None:
         """Return the unit of measurement."""
         return self._config.get(CONF_UNIT_OF_MEASUREMENT)
 
     @property
-    def native_value(self):
+    def value(self):
         """Return the current value."""
         return self._current_number
 
-    async def async_set_native_value(self, value: float) -> None:
+    async def async_set_value(self, value: float) -> None:
         """Update the current value."""
         current_number = value
 
@@ -297,8 +295,3 @@ class MqttNumber(MqttEntity, RestoreNumber):
     def assumed_state(self):
         """Return true if we do optimistic updates."""
         return self._optimistic
-
-    @property
-    def device_class(self) -> str | None:
-        """Return the device class of the sensor."""
-        return self._config.get(CONF_DEVICE_CLASS)

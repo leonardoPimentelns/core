@@ -14,8 +14,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import LutronCasetaDeviceUpdatableEntity
-from .const import DOMAIN as CASETA_DOMAIN
-from .models import LutronCasetaData
+from .const import BRIDGE_DEVICE, BRIDGE_LEAP, DOMAIN as CASETA_DOMAIN
 
 
 def to_lutron_level(level):
@@ -38,9 +37,9 @@ async def async_setup_entry(
     Adds dimmers from the Caseta bridge associated with the config_entry as
     light entities.
     """
-    data: LutronCasetaData = hass.data[CASETA_DOMAIN][config_entry.entry_id]
-    bridge = data.bridge
-    bridge_device = data.bridge_device
+    data = hass.data[CASETA_DOMAIN][config_entry.entry_id]
+    bridge = data[BRIDGE_LEAP]
+    bridge_device = data[BRIDGE_DEVICE]
     light_devices = bridge.get_devices_by_domain(DOMAIN)
     async_add_entities(
         LutronCasetaLight(light_device, bridge, bridge_device)

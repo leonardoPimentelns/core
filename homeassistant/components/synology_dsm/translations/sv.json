@@ -12,11 +12,6 @@
                 },
                 "description": "Do vill du konfigurera {name} ({host})?"
             },
-            "reauth_confirm": {
-                "data": {
-                    "username": "Anv\u00e4ndarnamn"
-                }
-            },
             "user": {
                 "data": {
                     "host": "V\u00e4rd",

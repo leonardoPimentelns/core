@@ -23,7 +23,6 @@ from .conftest import (
     MockEntityFixture,
     assert_entity_counts,
     ids_from_device_description,
-    reset_objects,
 )
 
 
@@ -36,13 +35,13 @@ async def light_fixture(
     # disable pydantic validation so mocking can happen
     Light.__config__.validate_assignment = False
 
-    light_obj = mock_light.copy()
+    light_obj = mock_light.copy(deep=True)
     light_obj._api = mock_entry.api
     light_obj.name = "Test Light"
     light_obj.light_device_settings.pir_sensitivity = 45
     light_obj.light_device_settings.pir_duration = timedelta(seconds=45)
 
-    reset_objects(mock_entry.api.bootstrap)
+    mock_entry.api.bootstrap.reset_objects()
     mock_entry.api.bootstrap.lights = {
         light_obj.id: light_obj,
     }
@@ -66,7 +65,7 @@ async def camera_fixture(
     # disable pydantic validation so mocking can happen
     Camera.__config__.validate_assignment = False
 
-    camera_obj = mock_camera.copy()
+    camera_obj = mock_camera.copy(deep=True)
     camera_obj._api = mock_entry.api
     camera_obj.channels[0]._api = mock_entry.api
     camera_obj.channels[1]._api = mock_entry.api
@@ -80,7 +79,7 @@ async def camera_fixture(
     camera_obj.mic_volume = 0
     camera_obj.isp_settings.zoom_position = 0
 
-    reset_objects(mock_entry.api.bootstrap)
+    mock_entry.api.bootstrap.reset_objects()
     mock_entry.api.bootstrap.cameras = {
         camera_obj.id: camera_obj,
     }
@@ -104,12 +103,12 @@ async def doorlock_fixture(
     # disable pydantic validation so mocking can happen
     Doorlock.__config__.validate_assignment = False
 
-    lock_obj = mock_doorlock.copy()
+    lock_obj = mock_doorlock.copy(deep=True)
     lock_obj._api = mock_entry.api
     lock_obj.name = "Test Lock"
     lock_obj.auto_close_time = timedelta(seconds=45)
 
-    reset_objects(mock_entry.api.bootstrap)
+    mock_entry.api.bootstrap.reset_objects()
     mock_entry.api.bootstrap.doorlocks = {
         lock_obj.id: lock_obj,
     }
@@ -175,7 +174,7 @@ async def test_number_setup_camera_none(
 ):
     """Test number entity setup for camera devices (no features)."""
 
-    camera_obj = mock_camera.copy()
+    camera_obj = mock_camera.copy(deep=True)
     camera_obj._api = mock_entry.api
     camera_obj.channels[0]._api = mock_entry.api
     camera_obj.channels[1]._api = mock_entry.api
@@ -186,7 +185,7 @@ async def test_number_setup_camera_none(
     # has_wdr is an the inverse of has HDR
     camera_obj.feature_flags.has_hdr = True
 
-    reset_objects(mock_entry.api.bootstrap)
+    mock_entry.api.bootstrap.reset_objects()
     mock_entry.api.bootstrap.cameras = {
         camera_obj.id: camera_obj,
     }
@@ -205,7 +204,7 @@ async def test_number_setup_camera_missing_attr(
     # disable pydantic validation so mocking can happen
     Camera.__config__.validate_assignment = False
 
-    camera_obj = mock_camera.copy()
+    camera_obj = mock_camera.copy(deep=True)
     camera_obj._api = mock_entry.api
     camera_obj.channels[0]._api = mock_entry.api
     camera_obj.channels[1]._api = mock_entry.api
@@ -215,7 +214,7 @@ async def test_number_setup_camera_missing_attr(
 
     Camera.__config__.validate_assignment = True
 
-    reset_objects(mock_entry.api.bootstrap)
+    mock_entry.api.bootstrap.reset_objects()
     mock_entry.api.bootstrap.cameras = {
         camera_obj.id: camera_obj,
     }

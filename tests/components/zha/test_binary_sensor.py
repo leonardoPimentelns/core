@@ -1,6 +1,4 @@
 """Test zha binary sensor."""
-from unittest.mock import patch
-
 import pytest
 import zigpy.profiles.zha
 import zigpy.zcl.clusters.measurement as measurement
@@ -34,21 +32,6 @@ DEVICE_OCCUPANCY = {
         SIG_EP_OUTPUT: [],
     }
 }
-
-
-@pytest.fixture(autouse=True)
-def binary_sensor_platform_only():
-    """Only setup the binary_sensor and required base platforms to speed up tests."""
-    with patch(
-        "homeassistant.components.zha.PLATFORMS",
-        (
-            Platform.BINARY_SENSOR,
-            Platform.DEVICE_TRACKER,
-            Platform.NUMBER,
-            Platform.SELECT,
-        ),
-    ):
-        yield
 
 
 async def async_test_binary_sensor_on_off(hass, cluster, entity_id):

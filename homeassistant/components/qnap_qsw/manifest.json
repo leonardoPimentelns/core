@@ -6,10 +6,5 @@
   "requirements": ["aioqsw==0.1.0"],
   "codeowners": ["@Noltari"],
   "iot_class": "local_polling",
-  "loggers": ["aioqsw"],
-  "dhcp": [
-    {
-      "macaddress": "245EBE*"
-    }
-  ]
+  "loggers": ["aioqsw"]
 }

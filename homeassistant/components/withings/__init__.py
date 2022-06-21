@@ -72,12 +72,11 @@ CONFIG_SCHEMA = vol.Schema(
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the Withings component."""
-    if not (conf := config.get(DOMAIN)):
-        # Apply the defaults.
-        conf = CONFIG_SCHEMA({DOMAIN: {}})[DOMAIN]
-        hass.data[DOMAIN] = {const.CONFIG: conf}
+    conf = config.get(DOMAIN, {})
+    if not (conf := config.get(DOMAIN, {})):
         return True
 
+    # Make the config available to the oauth2 config flow.
     hass.data[DOMAIN] = {const.CONFIG: conf}
 
     # Setup the oauth2 config flow.

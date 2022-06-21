@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import Any
 
 from pysmartthings import Attribute, Capability
 
@@ -51,18 +50,18 @@ def get_capabilities(capabilities: Sequence[str]) -> Sequence[str] | None:
 class SmartThingsLock(SmartThingsEntity, LockEntity):
     """Define a SmartThings lock."""
 
-    async def async_lock(self, **kwargs: Any) -> None:
+    async def async_lock(self, **kwargs):
         """Lock the device."""
         await self._device.lock(set_status=True)
         self.async_write_ha_state()
 
-    async def async_unlock(self, **kwargs: Any) -> None:
+    async def async_unlock(self, **kwargs):
         """Unlock the device."""
         await self._device.unlock(set_status=True)
         self.async_write_ha_state()
 
     @property
-    def is_locked(self) -> bool:
+    def is_locked(self):
         """Return true if lock is locked."""
         return self._device.status.lock == ST_STATE_LOCKED
 

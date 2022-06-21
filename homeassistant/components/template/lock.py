@@ -1,8 +1,6 @@
 """Support for locks which integrates with other components."""
 from __future__ import annotations
 
-from typing import Any
-
 import voluptuous as vol
 
 from homeassistant.components.lock import (
@@ -97,22 +95,22 @@ class TemplateLock(TemplateEntity, LockEntity):
         return self._optimistic
 
     @property
-    def is_locked(self) -> bool:
+    def is_locked(self):
         """Return true if lock is locked."""
         return self._state in ("true", STATE_ON, STATE_LOCKED)
 
     @property
-    def is_jammed(self) -> bool:
+    def is_jammed(self):
         """Return true if lock is jammed."""
         return self._state == STATE_JAMMED
 
     @property
-    def is_unlocking(self) -> bool:
+    def is_unlocking(self):
         """Return true if lock is unlocking."""
         return self._state == STATE_UNLOCKING
 
     @property
-    def is_locking(self) -> bool:
+    def is_locking(self):
         """Return true if lock is locking."""
         return self._state == STATE_LOCKING
 
@@ -140,14 +138,14 @@ class TemplateLock(TemplateEntity, LockEntity):
         )
         await super().async_added_to_hass()
 
-    async def async_lock(self, **kwargs: Any) -> None:
+    async def async_lock(self, **kwargs):
         """Lock the device."""
         if self._optimistic:
             self._state = True
             self.async_write_ha_state()
         await self.async_run_script(self._command_lock, context=self._context)
 
-    async def async_unlock(self, **kwargs: Any) -> None:
+    async def async_unlock(self, **kwargs):
         """Unlock the device."""
         if self._optimistic:
             self._state = False

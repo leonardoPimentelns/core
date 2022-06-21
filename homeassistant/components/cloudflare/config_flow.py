@@ -1,7 +1,6 @@
 """Config flow for Cloudflare integration."""
 from __future__ import annotations
 
-from collections.abc import Mapping
 import logging
 from typing import Any
 
@@ -98,7 +97,7 @@ class CloudflareConfigFlow(ConfigFlow, domain=DOMAIN):
         self.zones: list[str] | None = None
         self.records: list[str] | None = None
 
-    async def async_step_reauth(self, data: Mapping[str, Any]) -> FlowResult:
+    async def async_step_reauth(self, data: dict[str, Any]) -> FlowResult:
         """Handle initiation of re-authentication with Cloudflare."""
         self.entry = self.hass.config_entries.async_get_entry(self.context["entry_id"])
         return await self.async_step_reauth_confirm()

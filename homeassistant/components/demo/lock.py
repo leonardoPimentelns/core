@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Any
 
 from homeassistant.components.lock import LockEntity, LockEntityFeature
 from homeassistant.config_entries import ConfigEntry
@@ -67,26 +66,26 @@ class DemoLock(LockEntity):
         self._jam_on_operation = jam_on_operation
 
     @property
-    def is_locking(self) -> bool:
+    def is_locking(self):
         """Return true if lock is locking."""
         return self._state == STATE_LOCKING
 
     @property
-    def is_unlocking(self) -> bool:
+    def is_unlocking(self):
         """Return true if lock is unlocking."""
         return self._state == STATE_UNLOCKING
 
     @property
-    def is_jammed(self) -> bool:
+    def is_jammed(self):
         """Return true if lock is jammed."""
         return self._state == STATE_JAMMED
 
     @property
-    def is_locked(self) -> bool:
+    def is_locked(self):
         """Return true if lock is locked."""
         return self._state == STATE_LOCKED
 
-    async def async_lock(self, **kwargs: Any) -> None:
+    async def async_lock(self, **kwargs):
         """Lock the device."""
         self._state = STATE_LOCKING
         self.async_write_ha_state()
@@ -97,7 +96,7 @@ class DemoLock(LockEntity):
             self._state = STATE_LOCKED
         self.async_write_ha_state()
 
-    async def async_unlock(self, **kwargs: Any) -> None:
+    async def async_unlock(self, **kwargs):
         """Unlock the device."""
         self._state = STATE_UNLOCKING
         self.async_write_ha_state()
@@ -105,7 +104,7 @@ class DemoLock(LockEntity):
         self._state = STATE_UNLOCKED
         self.async_write_ha_state()
 
-    async def async_open(self, **kwargs: Any) -> None:
+    async def async_open(self, **kwargs):
         """Open the door latch."""
         self._state = STATE_UNLOCKED
         self.async_write_ha_state()

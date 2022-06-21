@@ -187,11 +187,11 @@ class VizioConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     def __init__(self) -> None:
         """Initialize config flow."""
         self._user_schema = None
-        self._must_show_form: bool | None = None
+        self._must_show_form = None
         self._ch_type = None
         self._pairing_token = None
-        self._data: dict[str, Any] | None = None
-        self._apps: dict[str, list] = {}
+        self._data = None
+        self._apps = {}
 
     async def _create_entry(self, input_dict: dict[str, Any]) -> FlowResult:
         """Create vizio config entry."""
@@ -387,11 +387,10 @@ class VizioConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         Ask user for PIN to complete pairing process.
         """
-        errors: dict[str, str] = {}
+        errors = {}
 
         # Start pairing process if it hasn't already started
         if not self._ch_type and not self._pairing_token:
-            assert self._data
             dev = VizioAsync(
                 DEVICE_ID,
                 self._data[CONF_HOST],
@@ -449,7 +448,6 @@ class VizioConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def _pairing_complete(self, step_id: str) -> FlowResult:
         """Handle config flow completion."""
-        assert self._data
         if not self._must_show_form:
             return await self._create_entry(self._data)
 

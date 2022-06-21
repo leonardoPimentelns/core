@@ -93,8 +93,10 @@ async def async_setup_entry(
     coordinator = hass.data[DOMAIN][config_entry.entry_id]
 
     async_add_entities(
-        PecoSensor(sensor, county, coordinator) for sensor in SENSOR_LIST
+        [PecoSensor(sensor, county, coordinator) for sensor in SENSOR_LIST],
+        True,
     )
+    return
 
 
 class PecoSensor(
